@@ -13,17 +13,14 @@ import (
 
 func main() {
 
-	// create log
-	log := log.New(os.Stdout, "product-api", log.LstdFlags)
+	// create logger
+	logger := log.New(os.Stdout, "product-api", log.LstdFlags)
 
 	// inject log into new handler
-	helloHandler := handlers.NewHello(log)
-	goodbyeHandler := handlers.NewGoodbye(log)
-
+	productHandler := handlers.NewProducts(logger)
 	// create a new serve mux and register hello and goodbye handlers
 	serveMux := http.NewServeMux()
-	serveMux.Handle("/", helloHandler)
-	serveMux.Handle("/goodbye", goodbyeHandler)
+	serveMux.Handle("/", productHandler)
 
 	// create server
 	server := &http.Server{
@@ -34,22 +31,26 @@ func main() {
 		WriteTimeout: 1 * time.Second,
 	}
 
+	// run as a background process
 	go func() {
 		// listen and serve on TCP
 		err := server.ListenAndServe()
 		if err != nil {
-			log.Fatal(err)
+			logger.Fatal(err)
 		}
 	}()
 
+	// create an os signal
 	sigChan := make(chan os.Signal)
 	signal.Notify(sigChan, os.Interrupt)
 	signal.Notify(sigChan, os.Kill)
 
+	// sig is assigned (gotta grok arrow operator)
 	sig := <-sigChan
-	log.Println("Received terminate, graceful shutdown", sig)
+	logger.Println("Received terminate, graceful shutdown", sig)
 	// create deadline context
 	timeoutContext, _ := context.WithTimeout(context.Background(), 30*time.Second)
+	// what is a context leak?
 
 	// graceful shutdown
 	server.Shutdown(timeoutContext)
