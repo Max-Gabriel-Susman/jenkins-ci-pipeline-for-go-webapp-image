@@ -8,15 +8,16 @@ import (
 )
 
 type Hello struct {
-	l *log.Logger
+	logger *log.Logger
 }
 
-func NewHello(l *log.Logger) *Hello {
-	return &Hello{l} // I don't think I quite understand this syntax
+func NewHello(logger *log.Logger) *Hello {
+	return &Hello{logger} // I don't think I quite understand this syntax
 }
 
-func (h *Hello) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
-	log.Println("Hello World")
+func (hello *Hello) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
+	hello.logger.Println("Hello World")
+
 	d, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		http.Error(rw, "Ooops", http.StatusBadRequest)
