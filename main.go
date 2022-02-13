@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/Max-Gabriel-Susman/GoMicroservice/handlers"
+	"github.com/gorilla/mux"
 )
 
 func main() {
@@ -19,8 +20,21 @@ func main() {
 	// inject log into new handler
 	productHandler := handlers.NewProducts(logger)
 	// create a new serve mux and register hello and goodbye handlers
-	serveMux := http.NewServeMux()
-	serveMux.Handle("/", productHandler)
+	serveMux := mux.NewRouter()
+
+	getRouter := serveMux.Methods(http.MethodGet).Subrouter()
+	getRouter.HandleFunc("/", productHandler.GetProducts)
+	getRouter.Use(productHandler.MiddlewareProductValidation)
+
+	putRouter := serveMux.Methods(http.MethodPut).Subrouter()
+	putRouter.HandleFunc("/{id:[0-9]+}", productHandler.UpdateProducts)
+	putRouter.Use(productHandler.MiddlewareProductValidation)
+
+	postRouter := serveMux.Methods(http.MethodPost).Subrouter()
+	postRouter.HandleFunc("/", productHandler.AddProduct)
+	postRouter.Use(productHandler.MiddlewareProductValidation)
+
+	// serveMux.Handle("/products", productHandler)
 
 	// create server
 	server := &http.Server{
