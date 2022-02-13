@@ -24,15 +24,14 @@ func main() {
 
 	getRouter := serveMux.Methods(http.MethodGet).Subrouter()
 	getRouter.HandleFunc("/", productHandler.GetProducts)
-	getRouter.Use(productHandler.MiddlewareProductValidation)
 
 	putRouter := serveMux.Methods(http.MethodPut).Subrouter()
 	putRouter.HandleFunc("/{id:[0-9]+}", productHandler.UpdateProducts)
-	putRouter.Use(productHandler.MiddlewareProductValidation)
+	putRouter.Use(productHandler.MiddlewareValidateProduct)
 
 	postRouter := serveMux.Methods(http.MethodPost).Subrouter()
 	postRouter.HandleFunc("/", productHandler.AddProduct)
-	postRouter.Use(productHandler.MiddlewareProductValidation)
+	postRouter.Use(productHandler.MiddlewareValidateProduct)
 
 	// serveMux.Handle("/products", productHandler)
 

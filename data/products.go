@@ -30,7 +30,7 @@ func (products *Products) ToJSON(writer io.Writer) error {
 	return encoder.Encode(products)
 }
 
-func GetProducts() []*Product {
+func GetProducts() Products {
 	return productList
 }
 
